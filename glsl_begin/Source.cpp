@@ -9,6 +9,7 @@
 #include<string>
 
 GLuint VertexArrayID;
+
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 
@@ -217,7 +218,10 @@ void display1()
 
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer2);
-	glVertexAttribPointer(
+
+
+
+	glVertexAttribPointer(//layout location of vertexPosition_modelspace must be same,that is set for glenablever..
 		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,                  // size
 		GL_FLOAT,           // type
@@ -237,12 +241,17 @@ void init() {
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
 
+	//**it is used above all many vertex||color bind,databuffer and used this VetexarrayID at display func 
+	//**where we use shader object and drawarray or element
+
+
 	//why we are usig this ? 
 	//need to create a Vertex Array Object 
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
+	//glGenVertexArrays(1, &VertexArrayID);
+	//glBindVertexArray(VertexArrayID);
 
-
+	//Not neccessary to be written inside init(),usually written in main()
+	
 
 
 	//So we need three 3D points in order to make a triangle
@@ -252,19 +261,22 @@ void init() {
 		0.0f,1.0f,0.0f,
 
 	};
+
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &VertexBuffer);
+
+	//bind & data comes together//not compulsory..
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_Vertex_Buffer_data), g_Vertex_Buffer_data, GL_STATIC_DRAW);
 
-	/*
+	/*//second vertex buffer for inverted triangle
+	//how to display them
 	static const GLfloat g_Vertex_Buffer_data2[] = {
 		-1.0f,1.0f,0.0f,
 		1.0f,1.0f,0.0f,
 		0.0f,-1.0f,0.0f,
-	
 	};
 	glGenBuffers(1, &VertexBuffer2);
 	// The following commands will talk about our 'vertexbuffer' buffer
@@ -306,7 +318,7 @@ int main(int argc, char** argv)
 
 	// Create the shader program.
 	g_ShaderProgram = CreateShaderProgram(shaders);
-	assert(g_ShaderProgram != 0);
+	//assert(g_ShaderProgram != 0);
 
 
 	glutDisplayFunc(display1);
