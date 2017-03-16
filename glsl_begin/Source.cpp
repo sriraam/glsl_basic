@@ -1,14 +1,19 @@
 #pragma comment (lib, "glew32s.lib")
 #define GLEW_STATIC
-#include<gl/glew.h>
+//#include<gl/glew.h>
+#include<GL/glew.h>
 #include<GL/freeglut.h>
 #include<iostream>
 #include<glm/glm.hpp>
+#include<glm/ext.hpp>
 #include<fstream>
 #include<vector>
 #include<string>
 
 GLuint VertexArrayID;
+
+GLuint MatrixID;
+glm::mat4 mvp;
 
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
@@ -212,12 +217,18 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
 
 void display1()
 {
+	
 	glUseProgram(g_ShaderProgram);
+	
+	//GLuint MatrixID = glGetUniformLocation(g_ShaderProgram, "MVP");
+	// Send our transformation to the currently bound shader, in the "MVP" uniform
+	// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer2);
+	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer2);
 
 
 
@@ -247,8 +258,9 @@ void init() {
 
 	//why we are usig this ? 
 	//need to create a Vertex Array Object 
-	//glGenVertexArrays(1, &VertexArrayID);
-	//glBindVertexArray(VertexArrayID);
+
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
 
 	//Not neccessary to be written inside init(),usually written in main()
 	
@@ -271,20 +283,41 @@ void init() {
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_Vertex_Buffer_data), g_Vertex_Buffer_data, GL_STATIC_DRAW);
 
-	/*//second vertex buffer for inverted triangle
+	//second vertex buffer for inverted triangle
 	//how to display them
 	static const GLfloat g_Vertex_Buffer_data2[] = {
 		-1.0f,1.0f,0.0f,
 		1.0f,1.0f,0.0f,
 		0.0f,-1.0f,0.0f,
 	};
+
 	glGenBuffers(1, &VertexBuffer2);
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer2);
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_Vertex_Buffer_data2), g_Vertex_Buffer_data2, GL_STATIC_DRAW);
 
-	*/
+
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
+
+	// Or, for an ortho camera :
+	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
+	
+	// Camera matrix
+	glm::mat4 View = glm::lookAt(
+		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
+		glm::vec3(0, 0, 0), // and looks at the origin
+		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+
+	// Model matrix : an identity matrix (model will be at the origin)
+	glm::mat4 Model = glm::mat4(1.0f);
+	// Our ModelViewProjection : multiplication of our 3 matrices
+	 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
+
+	 
+	// std::cout << MatrixID;
+	 //glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
 }
 //void runMainLoop(int val) {
@@ -302,6 +335,8 @@ int main(int argc, char** argv)
 	glutInitWindowSize(640, 480);
 	glutCreateWindow("simple rectangle");
 	glewExperimental = true; // Needed in core profile
+	
+
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
@@ -319,7 +354,7 @@ int main(int argc, char** argv)
 	// Create the shader program.
 	g_ShaderProgram = CreateShaderProgram(shaders);
 	//assert(g_ShaderProgram != 0);
-
+	MatrixID = glGetUniformLocation(g_ShaderProgram, "MVP");
 
 	glutDisplayFunc(display1);
 	//glutTimerFunc(1000 / 60, runMainLoop, 0);
