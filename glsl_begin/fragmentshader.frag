@@ -1,5 +1,10 @@
 #version 330 core
-out vec3 color;
+out vec4 result;
+in vec4 color;
+
+//uniform vec3 lightcolor;
+//uniform vec3 materialcolor;
+
 void main(){
-  color = vec3(1,0,0);
+result=color;
 }
