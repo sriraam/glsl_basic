@@ -12,7 +12,12 @@
 
 GLuint VertexArrayID;
 
+glm::mat4 View, Model, Projection;
+
+GLint modelLoc, viewLoc, projLoc;
+
 GLuint lightcolor_loc,materialcolor_loc;
+GLuint lightposLoc;
 GLuint MatrixID;
 glm::mat4 mvp;
 
@@ -22,6 +27,8 @@ GLuint VertexBuffer2;
 GLuint g_ShaderProgram = 0;
 //glGenVertexArrays(1, &VertexArrayID);
 
+// Light attributes
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 GLuint LoadShader(GLenum shaderType, const std::string& shaderFile)
 {
@@ -124,6 +131,13 @@ void display1()
 	// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 	glUniform3f(lightcolor_loc, 1, 1, 1);
 	glUniform3f(materialcolor_loc,1.0,.5,.3);
+	glUniform3f(lightposLoc,lightPos.x,lightPos.y,lightPos.z);
+
+	// Pass the matrices to the shader
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
+
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
@@ -196,12 +210,12 @@ void init() {
 		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
 
 		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
@@ -257,20 +271,20 @@ void init() {
 
 
 
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
+	 Projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
 
 	// Or, for an ortho camera :
 	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 	
 	// Camera matrix
-	glm::mat4 View = glm::lookAt(
+	 View = glm::lookAt(
 		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 
 	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 Model = glm::mat4(1.0f);
+	 Model = glm::mat4(1.0f);
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
@@ -299,7 +313,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	init();
-
+	glEnable(GL_DEPTH_TEST);
 	//load shaders
 	GLuint vertexShader = LoadShader(GL_VERTEX_SHADER, "vertexshader.vert");
 	GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, "fragmentshader.frag");
@@ -311,10 +325,17 @@ int main(int argc, char** argv)
 	// Create the shader program.
 	g_ShaderProgram = CreateShaderProgram(shaders);
 	//assert(g_ShaderProgram != 0);
+
+	// Get the uniform locations
+	 modelLoc = glGetUniformLocation(g_ShaderProgram, "model");
+	 viewLoc = glGetUniformLocation(g_ShaderProgram, "view");
+	 projLoc = glGetUniformLocation(g_ShaderProgram, "projection");
+
+
 	MatrixID = glGetUniformLocation(g_ShaderProgram, "MVP");
 	lightcolor_loc = glGetUniformLocation(g_ShaderProgram, "lightcolor");
 	materialcolor_loc = glGetUniformLocation(g_ShaderProgram, "materialcolor");
-
+	lightposLoc = glGetUniformLocation(g_ShaderProgram, "lightpos");
 	glutDisplayFunc(display1);
 	//glutTimerFunc(1000 / 60, runMainLoop, 0);
 	
