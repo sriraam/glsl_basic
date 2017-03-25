@@ -1,7 +1,7 @@
 #pragma once
 //#pragma comment (lib, "glew32s.lib")
 //#define GLEW_STATIC
-//#include <GL/glew.h>
+#include <GL/glew.h>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -63,7 +63,7 @@ void shader::loadshader(const std::string& vertexPath, const std::string& fragme
 	{
 		std::cout << "entered  compiler";
 		GLint logLength;
-	//	glGetShaderiv(v_shader, GL_INFO_LOG_LENGTH, &logLength);
+		glGetShaderiv(v_shader, GL_INFO_LOG_LENGTH, &logLength);
 		GLchar* infoLog = new GLchar[logLength];
 		glGetShaderInfoLog(v_shader, logLength, NULL, infoLog);
 
@@ -91,7 +91,7 @@ void shader::loadshader(const std::string& vertexPath, const std::string& fragme
 	if (compileStatus != GL_TRUE)
 	{
 		GLint logLength;
-		//	glGetShaderiv(v_shader, GL_INFO_LOG_LENGTH, &logLength);
+			glGetShaderiv(v_shader, GL_INFO_LOG_LENGTH, &logLength);
 		GLchar* infoLog = new GLchar[logLength];
 		glGetShaderInfoLog(f_shader, logLength, NULL, infoLog);
 
@@ -132,7 +132,8 @@ void shader::loadshader(const std::string& vertexPath, const std::string& fragme
 		// return 0;
 	 }
 
-
+	 glDeleteShader(v_shader);
+	 glDeleteShader(f_shader);
 
 }
 // Uses the current shader

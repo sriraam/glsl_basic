@@ -28,6 +28,7 @@ GLuint VertexBuffer;
 GLuint VertexBuffer2;
 
 shader shader_main;
+shader shader_light;
 //GLuint g_ShaderProgram = 0;
 //glGenVertexArrays(1, &VertexArrayID);
 
@@ -42,7 +43,7 @@ float alpha = 40.0f, beta = 45.0f;
 float r = 5.25f;
 
 // Light attributes
-glm::vec3 lightPos(1.5f, 1.5f, 2.0f);
+glm::vec3 lightPos(1.5f, 1.0f, 2.0f);
 
 /*GLuint LoadShader(GLenum shaderType, const std::string& shaderFile)
 {
@@ -153,7 +154,14 @@ void display1()
 	shader_main.Use();
 	//GLuint MatrixID = glGetUniformLocation(g_ShaderProgram, "MVP");
 	// Send our transformation to the currently bound shader, in the "MVP" uniform
-	// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+	// Get the uniform locations
+	modelLoc = glGetUniformLocation(shader_main.program, "model");
+	viewLoc = glGetUniformLocation(shader_main.program, "view");
+	projLoc = glGetUniformLocation(shader_main.program, "projection");
+
+
+	// //this is for old code, This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+	
 	glUniform3f(lightcolor_loc, 1, 1, 1);
 	glUniform3f(materialcolor_loc,1.0,.5,.3);
 	glUniform3f(lightposLoc,lightPos.x,lightPos.y,lightPos.z);
@@ -186,6 +194,28 @@ void display1()
 	//glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 	//glFlush();
+
+	
+	shader_light.Use();
+
+
+	modelLoc = glGetUniformLocation(shader_light.program, "model");
+	viewLoc = glGetUniformLocation(shader_light.program, "view");
+	projLoc = glGetUniformLocation(shader_light.program, "projection");
+
+	// Set matrices
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
+	Model = glm::mat4();
+	Model = glm::translate(Model, lightPos);
+	Model = glm::scale(Model, glm::vec3(0.1f)); // Make it a smaller cube
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
+
+	// Draw the light object (using light's vertex attributes)
+	glBindVertexArray(lightVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	
 	glutSwapBuffers();
 }
 
@@ -209,26 +239,13 @@ void init() {
 	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
 	camY = r *   						     sin(beta * 3.14f / 180.0f);
 
-	//camX = r;
-	//camY = r;
-	//camZ = r;
-
 
 	// some GL settings
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	//Not neccessary to be written inside init(),usually written in main()
-	
-	//lightcolor_loc=glGetUniformLocation(g_ShaderProgram,"lightcolor");
-
-//	glUniform3f(lightcolor_loc, 1, 1, 1);
-
-	//materialcolor_loc = glGetUniformLocation(g_ShaderProgram, "materialcolor");
-
-	//glUniform3f(lightcolor_loc, 1, 1, 1);
-
 
 	//So we need three 3D points in order to make a triangle
 	static const GLfloat g_Vertex_Buffer_data[] = {
@@ -313,7 +330,7 @@ void init() {
 	// We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	// Set the vertex attributes (only position data for the lamp))
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the normal vectors
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the normal vectors
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
@@ -455,6 +472,7 @@ int main(int argc, char** argv)
 	}
 	//shader shader_main;
 	shader_main.loadshader("vertexshader.vert", "fragmentshader.frag");
+	shader_light.loadshader("ver_lamp.vert","frag_lamp.frag");
 	init();
 	// glEnable(GL_DEPTH_TEST);
 	//load shaders
@@ -482,11 +500,7 @@ int main(int argc, char** argv)
 
 	
 
-	// Get the uniform locations
-	modelLoc = glGetUniformLocation(shader_main.program, "model");
-	viewLoc = glGetUniformLocation(shader_main.program, "view");
-	projLoc = glGetUniformLocation(shader_main.program, "projection");
-
+	
 
 	MatrixID = glGetUniformLocation(shader_main.program, "MVP");
 	lightcolor_loc = glGetUniformLocation(shader_main.program, "lightcolor");

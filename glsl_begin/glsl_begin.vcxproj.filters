@@ -32,4 +32,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ver_lamp.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="frag_lamp.frag">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
