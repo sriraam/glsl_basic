@@ -13,6 +13,7 @@
 
 
 GLuint VertexArrayID;
+GLuint NorArrayID;
 GLuint lightVAO;
 
 glm::mat4 View, Model, Projection;
@@ -25,10 +26,12 @@ GLuint MatrixID;
 glm::mat4 mvp;
 
 GLuint VertexBuffer;
+GLuint NorBuffer;
 GLuint VertexBuffer2;
 
 shader shader_main;
 shader shader_light;
+shader shader_normal;
 //GLuint g_ShaderProgram = 0;
 //glGenVertexArrays(1, &VertexArrayID);
 
@@ -150,52 +153,40 @@ void display1()
 	//glUseProgram(g_ShaderProgram);
 	//shader_main.Use();
 
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	shader_main.Use();
-	//GLuint MatrixID = glGetUniformLocation(g_ShaderProgram, "MVP");
-	// Send our transformation to the currently bound shader, in the "MVP" uniform
-	// Get the uniform locations
+
+
+		//glFlush();
+/*
+	//shader_main.~shader();
+		shader_normal.Use();
+
 	modelLoc = glGetUniformLocation(shader_main.program, "model");
 	viewLoc = glGetUniformLocation(shader_main.program, "view");
 	projLoc = glGetUniformLocation(shader_main.program, "projection");
 
-
-	// //this is for old code, This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
-	
-	glUniform3f(lightcolor_loc, 1, 1, 1);
-	glUniform3f(materialcolor_loc,1.0,.5,.3);
-	glUniform3f(lightposLoc,lightPos.x,lightPos.y,lightPos.z);
-
 	// Pass the matrices to the shader
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
+	Model = glm::mat4();
+	Model = glm::translate(Model, lightPos);
+	Model = glm::scale(Model, glm::vec3(0.1f)); // Make it a smaller cube
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
-	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-	//glEnableVertexAttribArray(0);
 
-	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-	
-	glBindVertexArray(VertexArrayID);
-	
+	glBindVertexArray(NorArrayID);
 
-	/*glVertexAttribPointer(//layout location of vertexPosition_modelspace must be same,that is set for glenablever..
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		3*sizeof(float),                  // stride
-		(void*)0            // array buffer offset
-	);*/
-	// Draw the triangle !
-	glDrawArrays(GL_TRIANGLES, 0, 36); // Starting from vertex 0; 3 vertices total -> 1 triangle
-	//glDisableVertexAttribArray(0);
+	glDrawArrays(GL_LINE_LOOP, 0,12);
 	glBindVertexArray(0);
-	//glFlush();
-
+	*/
 	
+	
+
+	/*
 	shader_light.Use();
 
 
@@ -215,7 +206,52 @@ void display1()
 	glBindVertexArray(lightVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
+	*/
+	shader_main.Use();
+
+	//GLuint MatrixID = glGetUniformLocation(g_ShaderProgram, "MVP");
+	// Send our transformation to the currently bound shader, in the "MVP" uniform
+	// Get the uniform locations
+	modelLoc = glGetUniformLocation(shader_main.program, "model");
+	viewLoc = glGetUniformLocation(shader_main.program, "view");
+	projLoc = glGetUniformLocation(shader_main.program, "projection");
+
+
+	// //this is for old code, This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+
+	glUniform3f(lightcolor_loc, 1, 1, 1);
+	glUniform3f(materialcolor_loc, 1.0, .5, .3);
+	glUniform3f(lightposLoc, lightPos.x, lightPos.y, lightPos.z);
+	Model = glm::mat4(1.0f);
+	// Pass the matrices to the shader
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
+
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 	
+	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	//glEnableVertexAttribArray(0);
+
+	//glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+
+	glBindVertexArray(VertexArrayID);
+
+	/*glVertexAttribPointer(//layout location of vertexPosition_modelspace must be same,that is set for glenablever..
+	0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+	3,                  // size
+	GL_FLOAT,           // type
+	GL_FALSE,           // normalized?
+	3*sizeof(float),                  // stride
+	(void*)0            // array buffer offset
+	);*/
+
+
+	// Draw the triangle !
+	glDrawArrays(GL_TRIANGLES, 0, 36); // Starting from vertex 0; 3 vertices total -> 1 triangle
+	glDisableVertexAttribArray(0);
+	glBindVertexArray(0);
+
 	glutSwapBuffers();
 }
 
@@ -233,7 +269,7 @@ void init() {
 
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &VertexBuffer);
-
+	glGenBuffers(1, &NorBuffer);
 	// set the camera position based on its spherical coordinates
 	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
 	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
@@ -254,6 +290,14 @@ void init() {
 		0.0f,1.0f,0.0f,
 	};
 
+	GLfloat nor_vertices[] = {
+		0.5f, 0.5f, 0.5f,  0.5f, 0.5f, -10.0f,
+		-0.5f, 0.5f, 0.5f,  -0.5f, 0.5f, -10.0f,
+	-0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, -10.0f,
+	    -0.5f,  -0.5f, 0.5f,  -0.5f,  -0.5f, -10.0f,
+		0.5f,  0.5f, -0.5f,  0.5f,  -0.5f, -10.0f,
+		0.5f, 0.5f, 0.5f,  0.5f, 0.5f, -10.0f
+	};
 
 	// Set up vertex data (and buffer(s)) and attribute pointers
 	GLfloat vertices[] = {
@@ -300,8 +344,22 @@ void init() {
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
 
+	/*//normal_ver_array
+	glGenVertexArrays(1, &NorArrayID);
+	glBindVertexArray(NorArrayID);
  
+
+	glBindBuffer(GL_ARRAY_BUFFER,NorBuffer);
+	glBufferData(GL_ARRAY_BUFFER,sizeof(nor_vertices),nor_vertices,GL_STATIC_DRAW);
 	
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	
+	glBindVertexArray(0);
+	*/
+	// Position attribute
 	//why we are usig this ? 
 	//need to create a Vertex Array Object 
 	glGenVertexArrays(1, &VertexArrayID);
@@ -330,7 +388,7 @@ void init() {
 	// We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	// Set the vertex attributes (only position data for the lamp))
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the normal vectors
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the normal vectors
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
@@ -472,6 +530,7 @@ int main(int argc, char** argv)
 	}
 	//shader shader_main;
 	shader_main.loadshader("vertexshader.vert", "fragmentshader.frag");
+	//shader_light.loadshader("ver_normal.vert", "frag_normal.frag");
 	shader_light.loadshader("ver_lamp.vert","frag_lamp.frag");
 	init();
 	// glEnable(GL_DEPTH_TEST);

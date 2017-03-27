@@ -1,6 +1,8 @@
 #version 330 core
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec3 normal; 
+
+
 out vec4 color;
 
 float ambientstrength=.3;
@@ -8,7 +10,6 @@ float ambientstrength=.3;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
 
 uniform vec3 lightcolor;
 uniform vec3 materialcolor;

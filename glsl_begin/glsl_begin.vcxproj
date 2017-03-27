@@ -155,7 +155,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="frag_lamp.frag" />
+    <None Include="frag_normal.frag" />
     <None Include="ver_lamp.vert" />
+    <None Include="ver_normal.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
