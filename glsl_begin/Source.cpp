@@ -46,7 +46,7 @@ float alpha = 40.0f, beta = 45.0f;
 float r = 5.25f;
 
 // Light attributes
-glm::vec3 lightPos(0.5f, 1.0f, 2.0f);
+glm::vec3 lightPos(2.0f, 1.0f, 1.5f);
 
 /*GLuint LoadShader(GLenum shaderType, const std::string& shaderFile)
 {
@@ -151,19 +151,22 @@ void display1()
 	viewLoc = glGetUniformLocation(shader_main.program, "view");
 	projLoc = glGetUniformLocation(shader_main.program, "projection");
 
+	lightcolor_loc = glGetUniformLocation(shader_main.program, "lightColor");
+	materialcolor_loc = glGetUniformLocation(shader_main.program, "materialcolor");
+	lightposLoc = glGetUniformLocation(shader_main.program, "lightPos");
 
 	// //this is for old code, This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 
 	glUniform3f(lightcolor_loc, 1, 1, 1);
 	glUniform3f(materialcolor_loc, 1.0, .5, .3);
-	glUniform3f(lightposLoc, lightPos.x, lightPos.y, lightPos.z);
+	glUniform3f(3, lightPos.x, lightPos.y, lightPos.z);
 	Model = glm::mat4(1.0f);
 	// Pass the matrices to the shader
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
-	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 	
 
 
@@ -193,6 +196,7 @@ void display1()
 	projLoc = glGetUniformLocation(shader_norm.program, "projection");
 
 	// Set matrices
+
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
 	//Model = glm::mat4();
@@ -202,7 +206,7 @@ void display1()
 
 	// Draw the light object (using light's vertex attributes)
 	glBindVertexArray(normalVAO);
-	glDrawArrays(GL_LINES, 0, 60);
+	glDrawArrays(GL_LINES, 0, 72);
 	glBindVertexArray(0);
 
 
@@ -215,6 +219,13 @@ void display1()
 	projLoc = glGetUniformLocation(shader_light.program, "projection");
 
 	// Set matrices
+	// Camera matrix
+	View = glm::lookAt(
+	glm::vec3(5.25 * sin(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25 * cos(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25*sin(45 * 3.14f / 180.0f)), // Camera is at (4,3,3), in World Space
+	glm::vec3(0, 0, 0), // and looks at the origin
+	glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
 	Model = glm::mat4();
@@ -260,7 +271,7 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
 	//Not neccessary to be written inside init(),usually written in main()
 
 	//So we need three 3D points in order to make a triangle
@@ -271,65 +282,68 @@ void init() {
 	};
 
 	GLfloat nor_vertices[] = {
-		-0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -1.0f,
+		
+		0.5f,  0.5f,  0.5f, 1.0f,  0.5f,  0.5f,
+		0.5f,  0.5f, -0.5f, 1.0f,  0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f, 1.0f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f, 1.0f, -0.5f, -0.5f,
+		0.5f, -0.5f,  0.5f, 1.0f, -0.5f,  0.5f,
+		0.5f,  0.5f,  0.5f, 1.0f,  0.5f,  0.5f,
+
+
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.5f,  0.5f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f, -1.0f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f, -1.0f, -0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f, -1.0f, -0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.5f,  0.5f,
+
+		- 0.5f, -0.5f,  0.5f, -0.5f, -0.5f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  1.0f,
+		0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  1.0f,
+		-0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  1.0f,
+		-0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  1.0f,
+
+		-0.5f, -0.5f, -0.5f, -0.5, -0.5f, -1.0f,
 		0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -1.0f,
 		0.5f,  0.5f, -0.5f,  0.5f, 0.5f, -1.0f,
 		0.5f,  0.5f, -0.5f,  0.5f, 0.5f, -1.0f,
 		-0.5f,  0.5f, -0.5f,  -0.5f, 0.5f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  -0.5f, -0.5f, -1.0f
-
-		- 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  1.0f,
-		0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  1.0f,
-		0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  1.0f,
-		-0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  1.0f,
-		-0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  1.0f,
-
-		-0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  1.0f,
-		-0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -1.0f,
-		-0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -1.0f,
-		-0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -1.0f,
-		-0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  1.0f,
-		-0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  1.0f,
-
-		0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  1.0f,
-		0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -1.0f,
-		0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -1.0f,
-		0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -1.0f,
-		0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  1.0f,
-		0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  1.0f,
-
 		-0.5f, -0.5f, -0.5f,  -0.5f, -0.5f, -1.0f,
-		0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -1.0f,
-		0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  1.0f,
-		0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  1.0f,
-		-0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  1.0f,
-		-0.5f, -0.5f, -0.5f,  -0.5f, -0.5f, -1.0f,
+	
+		
 
-		-0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -1.0f,
-		0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -1.0f,
-		0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  1.0f,
-		0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  1.0f,
-		-0.5f,  0.5f,  0.5f, -0.5f,  0.5f, 1.0f,
-		-0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -1.0f,
+	
+		-0.5f, -0.5f, -0.5f, -0.5f, -1.0f, -0.5f,
+		0.5f, -0.5f, -0.5f,  0.5f, -1.0f, -0.5f,
+		0.5f, -0.5f,  0.5f,  0.5f, -1.0f,  0.5f,
+		0.5f, -0.5f,  0.5f,  0.5f, -1.0f,  0.5f,
+		-0.5f, -0.5f,  0.5f,-0.5f, -1.0f,  0.5f,
+		-0.5f, -0.5f, -0.5f,-0.5f,-1.0f, -0.5f,
 
+		-0.5f,  0.5f, -0.5f,-0.5f,  1.0f, -0.5f,
+		0.5f,  0.5f, -0.5f, 	0.5f,  1.0f, -0.5f,
+		0.5f,  0.5f,  0.5f,0.5f,  1.0f,  0.5f,
+		0.5f,  0.5f,  0.5f, 0.5f,  1.0f,  0.5f,
+		-0.5f,  0.5f,  0.5f, -0.5f,  1.0f,  0.5f,
+		-0.5f,  0.5f, -0.5f, -0.5f,  1.0f, -0.5f
+		
 	};
 
 	// Set up vertex data (and buffer(s)) and attribute pointers
 	GLfloat vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
 
 		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
@@ -338,12 +352,23 @@ void init() {
 		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
 
 		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
@@ -572,10 +597,8 @@ int main(int argc, char** argv)
 
 
 
-	MatrixID = glGetUniformLocation(shader_main.program, "MVP");
-	lightcolor_loc = glGetUniformLocation(shader_main.program, "lightcolor");
-	materialcolor_loc = glGetUniformLocation(shader_main.program, "materialcolor");
-	lightposLoc = glGetUniformLocation(shader_main.program, "lightpos");
+	//MatrixID = glGetUniformLocation(shader_main.program, "MVP");
+	
 
 
 	glutDisplayFunc(display1);
