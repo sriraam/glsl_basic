@@ -35,7 +35,7 @@ void main(){
 vec3 EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
 
 vec3 LightPosition_cameraspace = vec3( model* vec4(lightpos,1));
-vec3 LightDirection_cameraspace =    EyeDirection_cameraspace + LightPosition_cameraspace;
+vec3 LightDirection_cameraspace =    EyeDirection_cameraspace - LightPosition_cameraspace;
 
  //vec3 Normal = mat3(transpose(inverse(model))) * normal;  
 //below code works fine but not completly..

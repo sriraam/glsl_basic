@@ -48,7 +48,7 @@ float alpha = 40.0f, beta = 45.0f;
 float r = 5.25f;
 
 // Light attributes
-glm::vec3 lightPos(2.0f, 1.0f, 1.5f);
+glm::vec3 lightPos(0.0,1.0,-1.5);
 
 /*GLuint LoadShader(GLenum shaderType, const std::string& shaderFile)
 {
@@ -158,8 +158,8 @@ void display1()
 	lightposLoc = glGetUniformLocation(shader_main.program, "lightPos");
 	viewPosLoc = glGetUniformLocation(shader_main.program, "viewPos");
 
-	glUniform3f(viewPosLoc, camX,camY,camZ);
-
+	glUniform3f(viewPosLoc, 5.25 * sin(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25 * cos(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25*sin(45 * 3.14f / 180.0f));
+	//glUniform3f(viewPosLoc, camX, camY, camZ);
 	// //this is for old code, This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 
 	glUniform3f(lightcolor_loc, 1, 1, 1);
