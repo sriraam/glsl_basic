@@ -22,6 +22,7 @@ GLint modelLoc, viewLoc, projLoc;
 
 GLuint lightcolor_loc, materialcolor_loc;
 GLuint lightposLoc;
+GLint viewPosLoc;
 GLuint MatrixID;
 glm::mat4 mvp;
 
@@ -35,6 +36,7 @@ shader shader_light;
 //GLuint g_ShaderProgram = 0;
 //glGenVertexArrays(1, &VertexArrayID);
 
+bool use_normals = false;
 // Camera Position
 float camX, camY, camZ;
 
@@ -154,6 +156,9 @@ void display1()
 	lightcolor_loc = glGetUniformLocation(shader_main.program, "lightColor");
 	materialcolor_loc = glGetUniformLocation(shader_main.program, "materialcolor");
 	lightposLoc = glGetUniformLocation(shader_main.program, "lightPos");
+	viewPosLoc = glGetUniformLocation(shader_main.program, "viewPos");
+
+	glUniform3f(viewPosLoc, camX,camY,camZ);
 
 	// //this is for old code, This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 
@@ -248,7 +253,7 @@ void display1()
 
 void init() {
 
-	//glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 
 	//**it is used above all many vertex||color bind,databuffer and used this VetexarrayID at display func 
@@ -261,6 +266,8 @@ void init() {
 	glGenBuffers(1, &VertexBuffer);
 	glGenBuffers(1, &normalBuffer);
 
+
+
 	// set the camera position based on its spherical coordinates
 	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
 	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
@@ -271,7 +278,7 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	//Not neccessary to be written inside init(),usually written in main()
 
 	//So we need three 3D points in order to make a triangle
