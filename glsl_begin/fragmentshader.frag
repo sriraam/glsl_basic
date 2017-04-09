@@ -3,12 +3,15 @@ out vec4 color;
 
 in vec3 FragPos;  
 in vec3 Normal;  
+in vec2 TexCoord;
   float ambientStrength=0.5;
 
   uniform vec3 materialcolor;
   uniform vec3 lightPos; 
   uniform vec3 lightColor;
   uniform vec3 viewPos;
+
+  uniform sampler2D mytexture;
 
   in vec3 l;
   in vec3 n;
@@ -35,7 +38,11 @@ void main(){
 
 	 vec3 result = (diffuse+specular) * materialcolor;
    
-	  color= vec4(result,1);
+	  //color=  texture(mytexture,TexCoord) *  vec4(result,1);
+	 color=  texture(mytexture,TexCoord) * vec4(result,1);
+	//  color=    vec4(result,1);
+	 //color= vec4(0,0,0,1);
+	 //color=vec4(TexCoord.x,TexCoord.y,0,1);
 }
 
 

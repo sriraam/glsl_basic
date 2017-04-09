@@ -1,7 +1,8 @@
 #pragma comment (lib, "glew32s.lib")
+//#pragma comment (lib, "SOIL.lib")
 #define GLEW_STATIC
 #include<gl/glew.h>
-
+#include<SOIL.h>
 #include"shader.h"
 #include<GL/freeglut.h>
 //#include<iostream>
@@ -9,6 +10,8 @@
 #include<glm/ext.hpp>
 //#include<fstream>
 #include<vector>
+#include<IL/il.h>
+#include<IL/ilu.h>
 //#include<string>
 
 
@@ -24,11 +27,15 @@ GLuint lightcolor_loc, materialcolor_loc;
 GLuint lightposLoc;
 GLint viewPosLoc;
 GLuint MatrixID;
+GLuint textureLoc;
 glm::mat4 mvp;
+
+GLuint imageID;
 
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 GLuint normalBuffer;
+GLuint texture;
 
 shader shader_main;
 shader shader_norm;
@@ -158,6 +165,8 @@ void display1()
 	lightposLoc = glGetUniformLocation(shader_main.program, "lightPos");
 	viewPosLoc = glGetUniformLocation(shader_main.program, "viewPos");
 
+	//textureLoc = glGetUniformLocation(shader_main.program,"mytexture");
+
 	glUniform3f(viewPosLoc, 5.25 * sin(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25 * cos(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25*sin(45 * 3.14f / 180.0f));
 	//glUniform3f(viewPosLoc, camX, camY, camZ);
 	// //this is for old code, This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
@@ -172,8 +181,12 @@ void display1()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
 	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
+	//glUniform1i(textureLoc, texture);
+	
+	
 
 	glBindVertexArray(VertexArrayID);
 
@@ -192,7 +205,7 @@ void display1()
 	glBindVertexArray(0);
 	//glFlush();
 
-	
+	/*
 	shader_norm.Use();
 
 
@@ -239,11 +252,12 @@ void display1()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
 	// Draw the light object (using light's vertex attributes)
+	
 	glBindVertexArray(lightVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 
-
+	*/
 	
 
 
@@ -255,16 +269,74 @@ void init() {
 
 	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+	ILboolean success;
+
+	ilInit();
+	std::string filename = "wooden_texture.jpg";
+	// generate an image name
+	ilGenImages(1, &imageID);
+	// bind it
+	ilBindImage(imageID);
+	// match image origin to OpenGL’s
+	ilEnable(IL_ORIGIN_SET);
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+	// load  the image
+	success = ilLoadImage((ILstring)filename.c_str());
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	// check to see if everything went OK
+	if (!success) {
+		ilDeleteImages(1, &imageID);
+		std::cout << "Image not loaded";
+		//return 0;
+	}
+	else {
+		std::cout << "Image Loaded Successfully !!!";
+	}
+
+
+	GLint Width, Height;
+	Width = ilGetInteger(IL_IMAGE_WIDTH);
+	Height = ilGetInteger(IL_IMAGE_HEIGHT);
+
+	std::cout << "Width" << Width << "\n";
+	std::cout << "Height" << Height << "\n";
+	ilBindImage(imageID);
+	unsigned char* Data = ilGetData();
 
 	//**it is used above all many vertex||color bind,databuffer and used this VetexarrayID at display func 
 	//**where we use shader object and drawarray or element
 
+	int width, height;
+	unsigned char* image = SOIL_load_image("img_test.bmp",&width,&height,0,SOIL_LOAD_RGB);
+//	std::cout << "Height" << height;
+	//std::cout << "Width" << width;
 
+	glGenTextures(1, &texture);
 
+	glBindTexture(GL_TEXTURE_2D, texture);
 
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	
+	
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	//SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	GLuint TexCoorBuffer;
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &VertexBuffer);
 	glGenBuffers(1, &normalBuffer);
+	glGenBuffers(1, &TexCoorBuffer);
 
 
 
@@ -278,7 +350,7 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	//Not neccessary to be written inside init(),usually written in main()
 
 	//So we need three 3D points in order to make a triangle
@@ -344,60 +416,105 @@ void init() {
 
 
 
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 1.0f,1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,1.0f,0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,0.0f,1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,0.0f,1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,0.0f,0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,1.0f,0.0f,
 
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 1.0f,1.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,1.0f,0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,0.0f,1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,0.0f,1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,0.0f,0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,1.0f,0.0f,
 
 
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 1.0f,1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,1.0f,0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,0.0f,1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,0.0f,1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,0.0f,0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,1.0f,0.0f,
 
 
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,1.0f,1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,1.0f,0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,0.0f,1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,0.0f,1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,0.0f,0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,1.0f,0.0f,
 
 
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,1.0f,1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,1.0f,0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,0.0f,1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,0.0f,1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,0.0f,0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,1.0f,0.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 1.0f,1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 1.0f,0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f,1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,0.0f,1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,0.0f,0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,1.0f,0.0f,
 	};
 
+	GLfloat TexCoord[] = {
+		1.0f,1.0f,
+		1.0f,0.0f,
+		0.0f,1.0f,
+		0.0f,1.0f,
+		0.0f,0.0f,
+		1.0f,0.0f,
+
+		1.0f,1.0f,
+		1.0f,0.0f,
+		0.0f,1.0f,
+		0.0f,1.0f,
+		0.0f,0.0f,
+		1.0f,0.0f,
+
+		1.0f,1.0f,
+		1.0f,0.0f,
+		0.0f,1.0f,
+		0.0f,1.0f,
+		0.0f,0.0f,
+		1.0f,0.0f,
+
+		1.0f,1.0f,
+		1.0f,0.0f,
+		0.0f,1.0f,
+		0.0f,1.0f,
+		0.0f,0.0f,
+		1.0f,0.0f,
+
+		1.0f,1.0f,
+		1.0f,0.0f,
+		0.0f,1.0f,
+		0.0f,1.0f,
+		0.0f,0.0f,
+		1.0f,0.0f,
+
+		1.0f,1.0f,
+		1.0f,0.0f,
+		0.0f,1.0f,
+		0.0f,1.0f,
+		0.0f,0.0f,
+		1.0f,0.0f
+
+	};
 
 
 	//why we are usig this ? 
 	//need to create a Vertex Array Object 
 	glGenVertexArrays(1, &normalVAO);
 	glGenVertexArrays(1, &VertexArrayID);
+
 	glBindVertexArray(VertexArrayID);
 
 	//bind & data comes together//not compulsory..
@@ -407,14 +524,25 @@ void init() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
+
 	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 	// Normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
+	//glBindBuffer(GL_ARRAY_BUFFER, TexCoorBuffer);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(TexCoord), TexCoord, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
 	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 
 	// Then, we set the light's VAO (VBO stays the same. After all, the vertices are the same for the light object (also a 3D cube))
 
@@ -439,7 +567,6 @@ void init() {
 
 	//second vertex buffer for inverted triangle
 	//how to display them
-
 
 
 	Projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
@@ -581,7 +708,7 @@ int main(int argc, char** argv)
 	//GLuint vertexShader = LoadShader(GL_VERTEX_SHADER, "vertexshader.vert");
 	//GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, "fragmentshader.frag");
 
-
+	ilInit();
 
 	//std::vector<GLuint> shaders;
 	//shaders.push_back(vertexShader);
