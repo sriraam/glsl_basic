@@ -10,8 +10,13 @@
 #include<glm/ext.hpp>
 //#include<fstream>
 #include<vector>
-#include<IL/il.h>
-#include<IL/ilu.h>
+#include"texture.h"
+
+//#include<gdk/gdk.h>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 //#include<string>
 
 
@@ -35,7 +40,7 @@ GLuint imageID;
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 GLuint normalBuffer;
-GLuint texture;
+GLuint Btexture1;
 
 shader shader_main;
 shader shader_norm;
@@ -57,6 +62,7 @@ float r = 5.25f;
 // Light attributes
 glm::vec3 lightPos(0.0,1.0,-1.5);
 
+texture t1;
 /*GLuint LoadShader(GLenum shaderType, const std::string& shaderFile)
 {
 std::ifstream ifs;
@@ -146,11 +152,6 @@ void display1()
 	//glUseProgram(g_ShaderProgram);
 	//shader_main.Use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	
-
-	
-
 	
 	shader_main.Use();
 	//GLuint MatrixID = glGetUniformLocation(g_ShaderProgram, "MVP");
@@ -181,8 +182,8 @@ void display1()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
 	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Btexture1);
 
 	//glUniform1i(textureLoc, texture);
 	
@@ -258,21 +259,15 @@ void display1()
 	glBindVertexArray(0);
 
 	*/
-	
-
-
 	glutSwapBuffers();
 }
-
-
-void init() {
-
-	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+/*
+void load_texture(std::string file) {
 
 	ILboolean success;
 
 	ilInit();
-	std::string filename = "wooden_texture.jpg";
+	std::string filename = file;
 	// generate an image name
 	ilGenImages(1, &imageID);
 	// bind it
@@ -294,28 +289,32 @@ void init() {
 	}
 
 
-	GLint Width, Height;
-	Width = ilGetInteger(IL_IMAGE_WIDTH);
-	Height = ilGetInteger(IL_IMAGE_HEIGHT);
+}
+*/
+void init() {
 
-	std::cout << "Width" << Width << "\n";
-	std::cout << "Height" << Height << "\n";
-	ilBindImage(imageID);
-	unsigned char* Data = ilGetData();
+	Assimp::Importer import;
+	const aiScene* scene = import.ReadFile("space_station.off", aiProcess_Triangulate | aiProcess_FlipUVs);
+
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+
+	
 
 	//**it is used above all many vertex||color bind,databuffer and used this VetexarrayID at display func 
 	//**where we use shader object and drawarray or element
 
-	int width, height;
-	unsigned char* image = SOIL_load_image("img_test.bmp",&width,&height,0,SOIL_LOAD_RGB);
-//	std::cout << "Height" << height;
-	//std::cout << "Width" << width;
+	//int width, height;
+	//unsigned char* image = SOIL_load_image("img_test.bmp",&width,&height,0,SOIL_LOAD_RGB);
+	std::cout << "Height" << t1.Height;
+	std::cout << "Width" << t1.Width;
 
-	glGenTextures(1, &texture);
+	glGenTextures(1, &Btexture1);
 
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, Btexture1);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, t1.Width, t1.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, t1.Data);
 
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -392,9 +391,6 @@ void init() {
 		-0.5f,  0.5f, -0.5f,  -0.5f, 0.5f, -1.0f,
 		-0.5f, -0.5f, -0.5f,  -0.5f, -0.5f, -1.0f,
 	
-		
-
-	
 		-0.5f, -0.5f, -0.5f, -0.5f, -1.0f, -0.5f,
 		0.5f, -0.5f, -0.5f,  0.5f, -1.0f, -0.5f,
 		0.5f, -0.5f,  0.5f,  0.5f, -1.0f,  0.5f,
@@ -403,8 +399,8 @@ void init() {
 		-0.5f, -0.5f, -0.5f,-0.5f,-1.0f, -0.5f,
 
 		-0.5f,  0.5f, -0.5f,-0.5f,  1.0f, -0.5f,
-		0.5f,  0.5f, -0.5f, 	0.5f,  1.0f, -0.5f,
-		0.5f,  0.5f,  0.5f,0.5f,  1.0f,  0.5f,
+		0.5f,  0.5f, -0.5f, 0.5f,  1.0f, -0.5f,
+		0.5f,  0.5f,  0.5f, 0.5f,  1.0f,  0.5f,
 		0.5f,  0.5f,  0.5f, 0.5f,  1.0f,  0.5f,
 		-0.5f,  0.5f,  0.5f, -0.5f,  1.0f,  0.5f,
 		-0.5f,  0.5f, -0.5f, -0.5f,  1.0f, -0.5f
@@ -414,10 +410,8 @@ void init() {
 	// Set up vertex data (and buffer(s)) and attribute pointers
 	GLfloat vertices[] = {
 
-
-
 		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 1.0f,1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,1.0f,0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f, 1.0f,0.0f,
 		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,0.0f,1.0f,
 		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,0.0f,1.0f,
 		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,0.0f,0.0f,
@@ -508,7 +502,7 @@ void init() {
 		1.0f,0.0f
 
 	};
-
+     
 
 	//why we are usig this ? 
 	//need to create a Vertex Array Object 
@@ -522,7 +516,6 @@ void init() {
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
 
 
 	// Position attribute
@@ -563,7 +556,7 @@ void init() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
-
+	
 
 	//second vertex buffer for inverted triangle
 	//how to display them
@@ -683,7 +676,7 @@ void processMouseMotion(int xx, int yy)
 
 int main(int argc, char** argv)
 {
-
+	
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_MULTISAMPLE);
@@ -698,6 +691,7 @@ int main(int argc, char** argv)
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
 	}
+	t1.loadtexture("wooden_texture.jpg");
 	//shader shader_main;
 	shader_main.loadshader("vertexshader.vert", "fragmentshader.frag");
 	shader_light.loadshader("ver_lamp.vert", "frag_lamp.frag");
@@ -709,14 +703,9 @@ int main(int argc, char** argv)
 	//GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, "fragmentshader.frag");
 
 	ilInit();
-
-	//std::vector<GLuint> shaders;
-	//shaders.push_back(vertexShader);
-	//shaders.push_back(fragmentShader);
-
-	// Create the shader program.
-	//g_ShaderProgram = CreateShaderProgram(shaders);
-	//assert(g_ShaderProgram != 0);
+	
+	
+	//load_texture("wooden_texture.jpg");
 
 	//	Mouse and Keyboard Callbacks
 	glutKeyboardFunc(processKeys);
@@ -726,14 +715,6 @@ int main(int argc, char** argv)
 	//	glutMouseWheelFunc(mouseWheel);
 	//	return from main loop
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-
-
-
-
-
-	//MatrixID = glGetUniformLocation(shader_main.program, "MVP");
-	
-
 
 	glutDisplayFunc(display1);
 	//glutIdleFunc(display1);
