@@ -38,7 +38,7 @@ void main(){
 
 	 vec3 result = (diffuse+specular) * materialcolor;
    
-	  //color=  texture(mytexture,TexCoord) *  vec4(result,1);
+	// color=  texture(mytexture,TexCoord);
 	 color=  texture(mytexture,TexCoord) * vec4(result,1);
 	//  color=    vec4(result,1);
 	 //color= vec4(0,0,0,1);
