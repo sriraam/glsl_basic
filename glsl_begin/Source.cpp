@@ -184,6 +184,11 @@ void display1()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
 	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+
+	/**When we are using multiple texture it s neccessary to select the texture #no. by glActiveTexture(),
+	followed by binding the texture, but in this case we are using single texture it s not needed**/
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
@@ -321,20 +326,24 @@ void init() {
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, t1.Width, t1.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, t1.Data);
 
+
+	//**Atleast one parameter is required**//
+
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
 	
 
-	glGenerateMipmap(GL_TEXTURE_2D);
 
-	//SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
+//	glGenerateMipmap(GL_TEXTURE_2D);
+
+	
+//	glBindTexture(GL_TEXTURE_2D, 0);
 
 	GLuint TexCoorBuffer;
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer

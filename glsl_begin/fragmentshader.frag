@@ -16,6 +16,14 @@ in vec2 TexCoord;
   in vec3 l;
   in vec3 n;
 
+  //We don't need material color as we are using texture a
+
+  struct Material{
+     sampler2D diffuse;
+     sampler2D specular;
+     float shininess;
+  };
+  uniform Material material;
 void main(){
 
  // Ambient
@@ -26,7 +34,7 @@ void main(){
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(n, l), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 diffuse = diff * vec3(texture(material.diffuse,TexCoord));
 	
 
 	  // Specular
@@ -36,11 +44,11 @@ void main(){
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;  
 
-	 vec3 result = (diffuse+specular) * materialcolor;
+	 vec3 result = (diffuse+specular) ;
    
 	  //color=  texture(mytexture,TexCoord) *  vec4(result,1);
-	 color=  texture(mytexture,TexCoord) * vec4(result,1);
-	//  color=    vec4(result,1);
+	 //color=  texture(mytexture,TexCoord) * vec4(result,1);
+	  color=    vec4(result,1);
 	 //color= vec4(0,0,0,1);
 	 //color=vec4(TexCoord.x,TexCoord.y,0,1);
 }
