@@ -12,7 +12,10 @@
 #include<vector>
 #include<IL/il.h>
 #include<IL/ilu.h>
+#include"texture.h"
 //#include<string>
+
+texture t1;
 
 
 GLuint VertexArrayID;
@@ -35,7 +38,7 @@ GLuint imageID;
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 GLuint normalBuffer;
-GLuint texture;
+GLuint texture1;
 
 shader shader_main;
 shader shader_norm;
@@ -182,7 +185,7 @@ void display1()
 
 	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	//glUniform1i(textureLoc, texture);
 	
@@ -269,7 +272,8 @@ void init() {
 
 	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	ILboolean success;
+
+/*	ILboolean success;
 
 	ilInit();
 	std::string filename = "wooden_texture.jpg";
@@ -310,12 +314,12 @@ void init() {
 	unsigned char* image = SOIL_load_image("img_test.bmp",&width,&height,0,SOIL_LOAD_RGB);
 //	std::cout << "Height" << height;
 	//std::cout << "Width" << width;
+	*/
+	glGenTextures(1, &texture1);
 
-	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, t1.Width, t1.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, t1.Data);
 
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -415,53 +419,49 @@ void init() {
 	GLfloat vertices[] = {
 
 
+		// Positions          // Normals           // Texture Coords
 
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 1.0f,1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,1.0f,0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,0.0f,1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,0.0f,1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,0.0f,0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,1.0f,0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
 
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 1.0f,1.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,1.0f,0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,0.0f,1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,0.0f,1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,0.0f,0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,1.0f,0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 1.0f,1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,1.0f,0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,0.0f,1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,0.0f,1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,0.0f,0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,1.0f,0.0f,
-
-
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,1.0f,1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,1.0f,0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,0.0f,1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,0.0f,1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,0.0f,0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,1.0f,0.0f,
-
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,1.0f,1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,1.0f,0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,0.0f,1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,0.0f,1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,0.0f,0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,1.0f,0.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 1.0f,1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 1.0f,0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f,1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,0.0f,1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,0.0f,0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,1.0f,0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
 	};
 
 	GLfloat TexCoord[] = {
@@ -510,7 +510,7 @@ void init() {
 	};
 
 
-	//why we are usig this ? 
+	
 	//need to create a Vertex Array Object 
 	glGenVertexArrays(1, &normalVAO);
 	glGenVertexArrays(1, &VertexArrayID);
@@ -520,6 +520,9 @@ void init() {
 	//bind & data comes together//not compulsory..
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+
+	//**Data entering starts from here**//
+
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -698,6 +701,8 @@ int main(int argc, char** argv)
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
 	}
+
+	t1.loadtexture("container2.png");
 	//shader shader_main;
 	shader_main.loadshader("vertexshader.vert", "fragmentshader.frag");
 	shader_light.loadshader("ver_lamp.vert", "frag_lamp.frag");
