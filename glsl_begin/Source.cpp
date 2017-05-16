@@ -16,7 +16,7 @@
 //#include<string>
 
 texture t1;
-
+texture t2;
 
 GLuint VertexArrayID;
 GLuint lightVAO;
@@ -38,7 +38,11 @@ GLuint imageID;
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 GLuint normalBuffer;
+
+//diffuse_map
 GLuint texture1;
+//specular_map
+GLuint texture2;
 
 shader shader_main;
 shader shader_norm;
@@ -191,6 +195,11 @@ void display1()
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
+	glUniform1i(glGetUniformLocation(shader_main.program, "material.diffuse"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glUniform1i(glGetUniformLocation(shader_main.program, "material.specular"), 1);
 
 	//glUniform1i(textureLoc, texture);
 	
@@ -336,9 +345,14 @@ void init() {
 
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
-	
+	glGenTextures(1, &texture2);
 
+	glBindTexture(GL_TEXTURE_2D,texture2);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, t2.Width, t2.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, t2.Data);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 //	glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -712,6 +726,7 @@ int main(int argc, char** argv)
 	}
 
 	t1.loadtexture("container2.png");
+	t2.loadtexture("container1.png");
 	//shader shader_main;
 	shader_main.loadshader("vertexshader.vert", "fragmentshader.frag");
 	shader_light.loadshader("ver_lamp.vert", "frag_lamp.frag");
