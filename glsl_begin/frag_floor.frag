@@ -1,6 +1,10 @@
 #version 330 core
 out vec4 color;
+in vec3 result;
 
 void main(){
-color=vec4(1,1,1,1);
+
+
+color=vec4(result,1.0f);
+
 }

@@ -19,7 +19,7 @@ texture t1;
 texture t2;
 
 GLuint VertexArrayID;
-GLuint lightVAO;
+GLuint floorVAO;
 GLuint normalVAO;
 
 glm::mat4 View, Model, Projection;
@@ -38,6 +38,7 @@ GLuint imageID;
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 GLuint normalBuffer;
+GLuint floorBuffer;
 
 //diffuse_map
 GLuint texture1;
@@ -46,7 +47,7 @@ GLuint texture2;
 
 shader shader_main;
 shader shader_norm;
-shader shader_light;
+shader shader_floor;
 //GLuint g_ShaderProgram = 0;
 //glGenVertexArrays(1, &VertexArrayID);
 
@@ -63,6 +64,16 @@ float r = 5.25f;
 
 // Light attributes
 glm::vec3 lightPos(0.0,1.0,-1.5);
+//glm::rota
+
+glm::vec3 model_position[5] = {
+	glm::vec3(3,2,-1),
+	glm::vec3(1,2,0),
+	glm::vec3(-2,2,-4),
+	glm::vec3(2,5,-5),
+	glm::vec3(0,4,-8)
+
+};
 
 /*GLuint LoadShader(GLenum shaderType, const std::string& shaderFile)
 {
@@ -181,11 +192,11 @@ void display1()
 	glUniform3f(lightcolor_loc, 1, 1, 1);
 	glUniform3f(materialcolor_loc, 1.0, .5, .3);
 	glUniform3f(3, lightPos.x, lightPos.y, lightPos.z);
-	Model = glm::mat4(1.0f);
+	//Model = glm::mat4(1.0f);
 	// Pass the matrices to the shader
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
+	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
 	//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
@@ -203,26 +214,31 @@ void display1()
 
 	//glUniform1i(textureLoc, texture);
 	
-	
-
+	//glBindVertexArray(VertexArrayID);
+	//Since VAO is handle the vertex data & its passing to the hardware
 	glBindVertexArray(VertexArrayID);
+	for(int i = 0; i < 5; i++) {
+	
+		Model = glm::mat4(1.0f);
+		Model = glm::translate(model_position[i]);
+		GLfloat angle = 20 *i;
+		//Model = glm::rotate(Model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+		Model = glm::rotate(Model,angle , glm::vec3(.3, .5, .6));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-	/*glVertexAttribPointer(//layout location of vertexPosition_modelspace must be same,that is set for glenablever..
-	0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-	3,                  // size
-	GL_FLOAT,           // type
-	GL_FALSE,           // normalized?
-	3*sizeof(float),                  // stride
-	(void*)0            // array buffer offset
-	);*/
-	// Draw the triangle !
-	glDrawArrays(GL_TRIANGLES, 0, 36); // Starting from vertex 0; 3 vertices total -> 1 triangle
-									   //glDisableVertexAttribArray(0);
+	}
+
 	glBindVertexArray(0);
+	//glDrawArrays(GL_TRIANGLES, 0, 36); // Starting from vertex 0; 3 vertices total -> 1 triangle
+									   //glDisableVertexAttribArray(0);
+	//glBindVertexArray(0);
 	//glFlush();
 
 	/*
+
+	//To draw the normals of the cube
 	shader_norm.Use();
 
 
@@ -244,37 +260,43 @@ void display1()
 	glDrawArrays(GL_LINES, 0, 72);
 	glBindVertexArray(0);
 
+	*/
+	
+	shader_floor.Use();
 
 
-	shader_light.Use();
+	modelLoc = glGetUniformLocation(shader_floor.program, "model");
+	viewLoc = glGetUniformLocation(shader_floor.program, "view");
+	projLoc = glGetUniformLocation(shader_floor.program, "projection");
 
+	lightcolor_loc = glGetUniformLocation(shader_floor.program, "lightcolor");
+	lightposLoc = glGetUniformLocation(shader_floor.program,"lightpos");
 
-	modelLoc = glGetUniformLocation(shader_light.program, "model");
-	viewLoc = glGetUniformLocation(shader_light.program, "view");
-	projLoc = glGetUniformLocation(shader_light.program, "projection");
 
 	// Set matrices
 	// Camera matrix
-	View = glm::lookAt(
-	glm::vec3(5.25 * sin(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25 * cos(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25*sin(45 * 3.14f / 180.0f)), // Camera is at (4,3,3), in World Space
-	glm::vec3(0, 0, 0), // and looks at the origin
-	glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-	);
+//	View = glm::lookAt(
+//	glm::vec3(5.25 * sin(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25 * cos(40 * 3.14f / 180.0f) * cos(45 * 3.14f / 180.0f), 5.25*sin(45 * 3.14f / 180.0f)), // Camera is at (4,3,3), in World Space
+//	glm::vec3(0, 0, 0), // and looks at the origin
+//	glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+//	);
 
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(View));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(Projection));
 	Model = glm::mat4();
-	Model = glm::translate(Model, lightPos);
-	Model = glm::scale(Model, glm::vec3(0.1f)); // Make it a smaller cube
+//	Model = glm::translate(Model, lightPos);
+//	Model = glm::scale(Model, glm::vec3(0.1f)); // Make it a smaller cube
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(Model));
 
+	glUniform3f(lightcolor_loc, 1, 1, 1);
+	glUniform3f(lightposLoc, lightPos.x, lightPos.y, lightPos.z);
 	// Draw the light object (using light's vertex attributes)
 	
-	glBindVertexArray(lightVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(floorVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 
-	*/
+	
 	
 
 
@@ -360,10 +382,7 @@ void init() {
 //	glBindTexture(GL_TEXTURE_2D, 0);
 
 	GLuint TexCoorBuffer;
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &VertexBuffer);
-	glGenBuffers(1, &normalBuffer);
-	glGenBuffers(1, &TexCoorBuffer);
+	
 
 
 
@@ -377,7 +396,7 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 	//Not neccessary to be written inside init(),usually written in main()
 
 	//So we need three 3D points in order to make a triangle
@@ -436,6 +455,17 @@ void init() {
 		-0.5f,  0.5f,  0.5f, -0.5f,  1.0f,  0.5f,
 		-0.5f,  0.5f, -0.5f, -0.5f,  1.0f, -0.5f
 		
+	};
+
+
+	GLfloat floor_vertices[] = {
+		//vertices //normals
+		-5,0,-5, 0,1,0,
+		5,0,-5,  0,1,0,
+		-5,0,5,  0,1,0,
+		-5,0,5,  0,1,0,
+		5,0,-5,  0,1,0,
+		5,0,5,   0,1,0
 	};
 
 	// Set up vertex data (and buffer(s)) and attribute pointers
@@ -532,12 +562,18 @@ void init() {
 
 	};
 
+	// Generate 1 buffer, put the resulting identifier in vertexbuffer
+	glGenBuffers(1, &VertexBuffer);
+	glGenBuffers(1, &normalBuffer);
+	glGenBuffers(1, &TexCoorBuffer);
 
+	glGenBuffers(1, &floorBuffer);
 	
 	//need to create a Vertex Array Object 
 	glGenVertexArrays(1, &normalVAO);
+	//glGenVertexArrays(1, &floorVAO);
+	//generate VAO and bind it before vertex buffer..
 	glGenVertexArrays(1, &VertexArrayID);
-
 	glBindVertexArray(VertexArrayID);
 
 	//bind & data comes together//not compulsory..
@@ -572,12 +608,14 @@ void init() {
 
 	// Then, we set the light's VAO (VBO stays the same. After all, the vertices are the same for the light object (also a 3D cube))
 
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
+	glGenVertexArrays(1, &floorVAO);
+	glBindVertexArray(floorVAO);
 	// We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
-	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, floorBuffer);
 	// Set the vertex attributes (only position data for the lamp))
+	glBufferData(GL_ARRAY_BUFFER, sizeof(floor_vertices), floor_vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the normal vectors
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
@@ -729,7 +767,7 @@ int main(int argc, char** argv)
 	t2.loadtexture("container1.png");
 	//shader shader_main;
 	shader_main.loadshader("vertexshader.vert", "fragmentshader.frag");
-	shader_light.loadshader("ver_lamp.vert", "frag_lamp.frag");
+	shader_floor.loadshader("ver_floor.vert", "frag_floor.frag");
 	shader_norm.loadshader("ver_normal.vert", "frag_normal.frag");
 	init();
 	// glEnable(GL_DEPTH_TEST);

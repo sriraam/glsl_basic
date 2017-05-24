@@ -39,16 +39,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ver_lamp.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="frag_lamp.frag">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="ver_normal.vert">
       <Filter>Source Files</Filter>
     </None>
     <None Include="frag_normal.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="frag_floor.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ver_floor.vert">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

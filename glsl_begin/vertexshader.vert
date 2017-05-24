@@ -35,16 +35,19 @@ void main(){
   FragPos = vec3(view*model * vec4(vertexPosition_modelspace, 1.0f));
 
  vec3 vertexPosition_cameraspace = vec3( view*model * vec4(vertexPosition_modelspace,1));
-vec3 EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
+//vec3 EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
 
 vec3 LightPosition_cameraspace = vec3( model* vec4(lightpos,1));
-vec3 LightDirection_cameraspace =    EyeDirection_cameraspace - LightPosition_cameraspace;
+vec3 LightDirection_cameraspace =    -vertexPosition_cameraspace - LightPosition_cameraspace;
 
  //vec3 Normal = mat3(transpose(inverse(model))) * normal;  
 //below code works fine but not completly..
    vec3 normalEyeSpace = vec3(view*model*vec4(normal,0.0));
-	 Normal = mat3(transpose(inverse(model))) * normalEyeSpace;  
 
+
+	 //Normal = mat3(transpose(inverse(model))) * normalEyeSpace;  
+	
+	 Normal = normalEyeSpace;
 //	vec3 Normal = mat3(transpose(inverse(model))) * normal;  
      norm = normalize(Normal);
 	

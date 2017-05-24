@@ -33,14 +33,14 @@ void main(){
     // Diffuse 
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(n, l), 0.0);
+    float diff = max(dot(n, lightDir), 0.0);   //Intensity
     vec3 diffuse = diff * vec3(texture(material.diffuse,TexCoord));
 	
 
 	  // Specular
     float specularStrength = 1.0f;
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-l, n);  
+    vec3 reflectDir = reflect(-lightDir, n);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
     vec3 specular = specularStrength * spec * vec3(texture(material.specular,TexCoord));  
 

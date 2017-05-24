@@ -160,9 +160,9 @@
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="frag_lamp.frag" />
+    <None Include="frag_floor.frag" />
     <None Include="frag_normal.frag" />
-    <None Include="ver_lamp.vert" />
+    <None Include="ver_floor.vert" />
     <None Include="ver_normal.vert" />
   </ItemGroup>
   <ItemGroup>
